@@ -1,0 +1,171 @@
+{% extends "layouts/base-fullscreen.html" %} 
+
+{% block title %} Login {% endblock %}
+
+<!-- Specific Page CSS goes HERE -->
+{% block stylesheets %}
+<link href="{{ url_for('static', filename='assets/css/auth-pages.css') }}" rel="stylesheet" />
+{% endblock stylesheets %}
+
+{% block content %}
+<!-- Container for both columns -->
+<div class="mainContainer">
+  <!-- First Column (Info) -->
+  <div class="text-column">
+    <div style="display: flex; align-items: center;">
+      <h1 style="margin-bottom: 25px">RiskSense</h1>
+
+      <img
+        class="tickLogo"
+        src="{{ url_for('static', filename='assets/img/logo.png') }}"
+        style="height: 70px; width: 70px; margin-bottom: 10px"
+      />
+    </div>
+
+    <h2 style="margin-bottom: 20px; text-align: start;">Your Gateway to Financial Confidence</h2>
+
+    <div style="width: 100%; text-align: start; max-width: 600px; margin: 0 auto;">
+      Welcome to RiskSense, where cutting-edge technology meets financial
+      foresight. Whether you're safeguarding your investments or exploring
+      predictive insights, we've got you covered.
+    </div>
+
+    <div class="listOfPros">
+      <div class="proRow">
+        <img
+          class="tickLogo"
+          src="{{ url_for('static', filename='assets/img/help.png') }}"
+          alt="Help Icon"
+        />
+        <b> Accurate Default Predictions</b>
+      </div>
+
+      <div style="margin-left: 40px; margin-top: 0px; margin-bottom: 30px">
+        Our model analyzes financial data, transaction history, and market
+        signals to predict the likelihood of a company defaulting, helping
+        businesses and investors make informed decisions.
+      </div>
+
+      <div class="proRow">
+        <img
+          class="tickLogo"
+          src="{{ url_for('static', filename='assets/img/help.png') }}"
+          alt="Help Icon"
+        />
+        <b>Interactive Dashboard & Insights </b>
+      </div>
+
+      <div style="margin-left: 40px; margin-top: 0px; margin-bottom: 30px">
+        View a real-time risk heatmap, explore past predictions, and track
+        financial trends with an intuitive, data-driven interface designed for
+        clarity and precision.
+      </div>
+
+      <div class="proRow">
+        <img
+          class="tickLogo"
+          src="{{ url_for('static', filename='assets/img/help.png') }}"
+          alt="Help Icon"
+        />
+        <b>Error Tracking & Model Improvement</b>
+      </div>
+
+      <div style="margin-left: 40px; margin-top: 0px; margin-bottom: 20px">
+        Every incorrect prediction is logged, analyzed, and used to refine
+        future forecasts, ensuring continuous learning and improved accuracy
+        over time.
+      </div>
+    </div>
+  </div>
+
+  <!-- Second Column (Login Form) -->
+  <div style="width: 85%; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;">
+    <div class="customCard" style="width: 70%; height: auto; display: flex; flex-direction: column;">
+      <form id="authForm" method="post" action="{{ url_for('authentication_blueprint.login') }}">
+        {{ form.hidden_tag() }}
+        
+        <!-- Form Header -->
+        <h2 id="formTitle" class="form-fields-fade" style="font-family: Montserrat; font-size: 32px; margin-bottom: 40px; text-align: center;">
+          Login to Access Insights
+        </h2>
+
+        <!-- Alert Message -->
+        {% if msg %}
+        <div class="alert alert-danger alert-dismissible fade show" style="margin-bottom: 20px;" role="alert">
+          {{ msg | safe }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endif %}
+
+        <!-- Form Fields Container -->
+        <div class="form-container">
+          <!-- Login Fields -->
+          <div id="loginFields" class="form-fields-fade">
+            <div style="margin-bottom: 25px;">
+              <label class="block" style="font-family: Montserrat; color: white; margin-bottom: 10px;">
+                Username
+              </label>
+              {{ form.username(class="form-control", style="font-family: Montserrat; padding: 12px; width: 100%;") }}
+            </div>
+
+            <div style="margin-bottom: 25px;">
+              <label class="block" style="font-family: Montserrat; color: white; margin-bottom: 10px;">
+                Password
+              </label>
+              {{ form.password(class="form-control", type="password", style="font-family: Montserrat; padding: 12px; width: 100%;") }}
+            </div>
+
+            <!-- Remember Me -->
+            <div class="remember-me-container">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="rememberMe" name="rememberMe">
+                <span>Remember Me</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="buttonRow" style="margin: 0; flex-direction: column; align-items: center;">
+          <button type="submit" name="login" class="btn btn-primary btn-block btn-round" id="submitButton" style="margin-bottom: 15px; width: 100%; background: linear-gradient(to bottom left, #e14eca, #ba54f5, #e14eca); background-size: 210% 210%; padding: 12px 20px;">
+            <span style="font-weight: 600; font-size: 16px;">Login</span>
+          </button>
+
+          <p style="margin-top: 15px; text-align: center; font-family: 'Montserrat', sans-serif; opacity: 0.8;">
+            Don't have an account? 
+            <a href="{{ url_for('authentication_blueprint.register') }}" style="color: #e14eca; text-decoration: underline; font-weight: 600;">
+              Register here
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Focus on the username field when page loads
+    const usernameField = document.getElementById('username');
+    if (usernameField) {
+      usernameField.focus();
+    }
+
+    // Handle alert dismissal
+    const alertClose = document.querySelector('.alert .close');
+    if (alertClose) {
+      alertClose.addEventListener('click', function() {
+        const alert = this.closest('.alert');
+        alert.classList.remove('show');
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 300);
+      });
+    }
+  });
+</script>
+{% endblock javascripts %}

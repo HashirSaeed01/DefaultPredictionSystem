@@ -1,0 +1,943 @@
+{% extends "layouts/base.html" %} 
+
+{% block title %} User Profile {% endblock %}
+
+{% block stylesheets %}
+<style>
+  /* Existing modal styles */
+  .form-check {
+    margin-bottom: 10px;
+    padding-left: 35px !important;
+    position: relative;
+    display: block;
+    background: #ffffff;
+  }
+
+  .form-check-input {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 2;
+  }
+
+  .form-check-label {
+    display: block;
+    margin-left: 5px;
+    padding: 8px 0;
+    color: #000000;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  #columnCheckboxes {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+  }
+
+  .modal.show {
+    display: block !important;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background: #ffffff;
+    color: #000000;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Enhanced form styling */
+  .form-control {
+    font-family: 'Montserrat', sans-serif !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: #e14eca !important;
+    box-shadow: 0 0 0 2px rgba(225, 78, 202, 0.25) !important;
+  }
+
+  .form-control::placeholder {
+    font-family: 'Montserrat', sans-serif !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-size: 0.9em;
+  }
+
+  /* Label styling */
+  .form-group label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 0.9em;
+    color: #e14eca;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Card enhancements */
+  .card {
+    background: linear-gradient(145deg, #2d2f44, #1f2037);
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px 30px;
+  }
+
+  .card-header .title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: #e14eca;
+  }
+
+  /* Button styling */
+  .btn-primary {
+    background: linear-gradient(to right, #e14eca, #ba54f5);
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    padding: 10px 25px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(225, 78, 202, 0.4);
+  }
+
+  /* Form group spacing */
+  .form-group {
+    margin-bottom: 25px;
+  }
+
+  /* Textarea enhancement */
+  textarea.form-control {
+    resize: none;
+    min-height: 120px;
+  }
+
+  /* Input group animations */
+  .form-group {
+    position: relative;
+  }
+
+  .form-control:focus + label,
+  .form-control:not(:placeholder-shown) + label {
+    transform: translateY(-25px);
+    font-size: 0.8em;
+    color: #e14eca;
+  }
+
+  /* File upload area enhancement */
+  .upload-guidelines {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+  }
+
+  .upload-guidelines h6 {
+    color: #e14eca;
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 10px;
+  }
+
+  .upload-guidelines ul {
+    padding-left: 20px;
+  }
+
+  .upload-guidelines li {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+  }
+
+  /* Add these new styles for the CSV upload section */
+  .csv-upload-card {
+    background: linear-gradient(145deg, #2d2f44, #1f2037);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+  }
+
+  .file-upload-area {
+    border: 2px dashed rgba(225, 78, 202, 0.3);
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    cursor: pointer;
+  }
+
+  .file-upload-area:hover {
+    border-color: #e14eca;
+    background: rgba(225, 78, 202, 0.05);
+  }
+
+  .file-upload-area.dragover {
+    border-color: #e14eca;
+    background: rgba(225, 78, 202, 0.1);
+  }
+
+  #fileNameDisplay {
+    font-family: 'Montserrat', sans-serif;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 10px;
+    display: block;
+    font-size: 0.9em;
+  }
+
+  .upload-icon {
+    font-size: 40px;
+    color: #e14eca;
+    margin-bottom: 15px;
+  }
+
+  .upload-guidelines {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+  }
+
+  .upload-guidelines h6 {
+    color: #e14eca;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+  }
+
+  .upload-guidelines ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .upload-guidelines li {
+    font-family: 'Montserrat', sans-serif;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85em;
+    margin-bottom: 10px;
+    padding-left: 25px;
+    position: relative;
+  }
+
+  .upload-guidelines li:before {
+    content: '✓';
+    color: #e14eca;
+    position: absolute;
+    left: 0;
+  }
+
+  #responseMessage {
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+    display: none;
+  }
+
+  .alert-success {
+    background: rgba(0, 242, 195, 0.1);
+    border: 1px solid #00f2c3;
+    color: #00f2c3;
+  }
+
+  .alert-danger {
+    background: rgba(253, 93, 147, 0.1);
+    border: 1px solid #fd5d93;
+    color: #fd5d93;
+  }
+
+  /* Add or update these styles */
+  .file-upload-btn {
+    background: linear-gradient(145deg, #2d2f44, #1f2037);
+    color: rgba(255, 255, 255, 0.7);
+    border: 2px solid rgba(225, 78, 202, 0.3);
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-top: 10px;
+    display: inline-block;
+  }
+
+  .file-upload-btn:hover {
+    background: linear-gradient(to right, #e14eca, #ba54f5);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(225, 78, 202, 0.4);
+  }
+
+  .file-upload-btn i {
+    margin-right: 8px;
+  }
+
+  /* Cyberpunk Toastr Notification */
+  .cyber-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  .cyber-toast {
+    background: linear-gradient(135deg, #1f2037, #2d2f44);
+    border-left: 4px solid #e14eca;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(225, 78, 202, 0.3), 0 0 20px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 400px;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+    pointer-events: auto;
+  }
+
+  .cyber-toast.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .cyber-toast-icon {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(45deg, #e14eca, #8965e0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(225, 78, 202, 0.5);
+  }
+
+  .cyber-toast-icon i {
+    color: white;
+    font-size: 12px;
+  }
+
+  .cyber-toast-content {
+    flex: 1;
+  }
+
+  .cyber-toast-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #e14eca;
+  }
+
+  .cyber-toast-message {
+    font-size: 13px;
+    opacity: 0.9;
+  }
+
+  .cyber-toast-close {
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.2s;
+    pointer-events: auto;
+  }
+
+  .cyber-toast-close:hover {
+    color: white;
+  }
+
+  @keyframes cyber-toast-progress {
+    0% { width: 100%; }
+    100% { width: 0%; }
+  }
+
+  .cyber-toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(to right, #e14eca, #8965e0);
+    width: 100%;
+    border-radius: 0 0 0 6px;
+    animation: cyber-toast-progress 5s linear forwards;
+  }
+  
+  /* Toast variants */
+  .cyber-toast.error .cyber-toast-icon {
+    background: linear-gradient(45deg, #fd5d93, #ec250d);
+  }
+  
+  .cyber-toast.error {
+    border-left-color: #fd5d93;
+  }
+  
+  .cyber-toast.error .cyber-toast-title {
+    color: #fd5d93;
+  }
+  
+  .cyber-toast.error .cyber-toast-progress {
+    background: linear-gradient(to right, #fd5d93, #ec250d);
+  }
+  
+  .cyber-toast.success .cyber-toast-icon {
+    background: linear-gradient(45deg, #00f2c3, #0098f0);
+  }
+  
+  .cyber-toast.success {
+    border-left-color: #00f2c3;
+  }
+  
+  .cyber-toast.success .cyber-toast-title {
+    color: #00f2c3;
+  }
+  
+  .cyber-toast.success .cyber-toast-progress {
+    background: linear-gradient(to right, #00f2c3, #0098f0);
+  }
+</style>
+{% endblock stylesheets %} 
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="title">Input Loan Information for Prediction</h5>
+        </div>
+
+        <p style="padding-left: 40px; padding-right: 20px">
+          In this section, you'll need to enter the relevant details from the
+          loan you wish to assess for potential default. You can either manually
+          input the loan data or upload an Excel row that contains the required
+          information. Once the data is entered, the system will predict whether
+          the loan is likely to default based on the provided stats and your
+          machine learning model's analysis. Please make sure the information is
+          accurate to ensure the best predictions.
+        </p>
+
+        <div class="card-body">
+          <form id="loanForm">
+            <div class="col-md-6 pr-md-3">
+              <div class="form-group" style="width: 150%">
+                <label>Customer ID</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter Customer ID"
+                  name="customerId"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-md-6 pr-md-3">
+              <div class="form-group" style="width: 150%">
+                <label>Transaction ID</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter Transaction ID"
+                  name="transactionId"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-md-6 pl-md-3">
+              <div class="form-group" style="width: 150%">
+                <label>Material ID</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter Material ID"
+                  name="materialId"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="row pl-md-3 pr-md-3">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Distributor Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter Distributor Name"
+                    name="distributorName"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6 pl-md-3">
+                <div class="form-group">
+                  <label>Quantity</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    placeholder="Enter Quantity"
+                    name="quantity"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 pr-md-3">
+              <div class="form-group">
+                <label>Material Description</label>
+                <textarea
+                  class="form-control"
+                  style="width: 130%; height: 200px"
+                  placeholder="Enter Material Description"
+                  name="materialDescription"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="row pl-md-3 pr-md-3">
+              <div class="col-md-6 pr-md-3">
+                <div class="form-group">
+                  <label>Musharaka</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter Musharaka"
+                    name="musharaka"
+                  />
+                </div>
+              </div>
+              <div class="col-md-6 pl-md-3">
+                <div class="form-group">
+                  <label>Profit Rate</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    placeholder="Enter Profit Rate"
+                    name="profitRate"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row pl-md-3 pr-md-3">
+              <div class="col-md-6 pr-md-3">
+                <div class="form-group">
+                  <label>Kibor Rate</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    placeholder="Enter Kibor Rate"
+                    name="kiborRate"
+                  />
+                </div>
+              </div>
+              <div class="col-md-6 pl-md-3">
+                <div class="form-group">
+                  <label>Kibor Tenure Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter Kibor Tenure Name"
+                    name="kiborTenureName"
+                  />
+                </div>
+              </div>
+            </div>
+            <!-- Repeat for all remaining fields -->
+          </form>
+        </div>
+        <div class="card-footer">
+          <button type="button" id="submitFormBtn" class="btn btn-fill btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card csv-upload-card">
+        <div class="card-header">
+          <h5 class="title">Upload CSV File</h5>
+        </div>
+        <div class="card-body">
+          <form id="uploadForm" action="/data/upload-data" method="post" enctype="multipart/form-data">
+            <div class="file-upload-area" id="dropZone">
+              <i class="tim-icons icon-upload upload-icon"></i>
+              <h6>Drag and drop your file here</h6>
+              <p>or</p>
+              <label for="csvFile" class="file-upload-btn">
+                <i class="tim-icons icon-upload"></i>Choose File
+              </label>
+              <input type="file" id="csvFile" name="file" accept=".csv,.xlsx" style="display: none" onchange="updateFileName(this)" />
+              <span id="fileNameDisplay">No file chosen</span>
+            </div>
+            <button type="submit" class="btn btn-fill btn-primary btn-block">
+              <i class="tim-icons icon-cloud-upload-94"></i> Upload & Process
+            </button>
+          </form>
+
+          <div id="responseMessage" class="alert"></div>
+
+          <div class="upload-guidelines">
+            <h6><i class="tim-icons icon-alert-circle-exc"></i> File Requirements</h6>
+            <ul>
+              <li>File must be in CSV or XLSX format</li>
+              <li>First row should contain column headers</li>
+              <li>All required fields must be present</li>
+              <li>Maximum file size: 5MB</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column Selection Modal -->
+      <div id="columnSelectionModal" class="modal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="title">Select Columns to Store</h5>
+              <button type="button" class="close" onclick="closeModal()">
+                ×
+              </button>
+            </div>
+            <div class="modal-body">
+              <div
+                class="form-check select-all-wrapper"
+                style="
+                  margin-bottom: 15px;
+                  border-bottom: 1px solid #dee2e6;
+                  padding-bottom: 10px;
+                "
+              >
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="selectAll"
+                />
+                <label class="form-check-label" for="selectAll"
+                  ><strong>Select All Columns</strong></label
+                >
+              </div>
+              <div id="columnCheckboxes"></div>
+            </div>
+            <div
+              id="columnWarning"
+              style="display: none"
+              class="alert alert-warning m-3"
+            >
+              <div>
+                Some columns don't exist in the database. Would you like to
+                create them?
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="closeModal()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="proceedWithUpload()"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="cyber-toast-container" id="toast-container"></div>
+{% endblock content %} 
+
+{% block javascripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const dropZone = document.getElementById('dropZone');
+    const toastContainer = document.getElementById('toast-container');
+    const loanForm = document.getElementById('loanForm');
+    const submitFormBtn = document.getElementById('submitFormBtn');
+    
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop zone when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight(e) {
+      dropZone.classList.add('dragover');
+    }
+
+    function unhighlight(e) {
+      dropZone.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      document.getElementById('csvFile').files = files;
+      updateFileName({files: files});
+    }
+
+    const uploadForm = document.getElementById("uploadForm");
+    const modal = document.getElementById("columnSelectionModal");
+
+    // Handle form submission with validation
+    submitFormBtn.addEventListener('click', function() {
+      // Get required fields
+      const customerId = loanForm.querySelector('[name="customerId"]').value.trim();
+      const transactionId = loanForm.querySelector('[name="transactionId"]').value.trim();
+      const materialId = loanForm.querySelector('[name="materialId"]').value.trim();
+      
+      // Check if required fields are filled
+      if (!customerId || !transactionId || !materialId) {
+        showToast('Form Incomplete', 'Please fill in all required fields', 'error');
+        return;
+      }
+      
+      // Show loading state
+      submitFormBtn.disabled = true;
+      submitFormBtn.innerHTML = '<i class="tim-icons icon-refresh-69 fa-spin"></i> Saving...';
+      
+      // Simulate server response after 1.5 seconds
+      setTimeout(() => {
+        submitFormBtn.disabled = false;
+        submitFormBtn.innerHTML = 'Save';
+        
+        // Show success toast
+        showToast('Form Submitted', 'Loan information has been saved successfully', 'success');
+        
+        // Reset form (optional)
+        loanForm.reset();
+      }, 1500);
+    });
+
+    uploadForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const fileInput = document.getElementById("csvFile");
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('Error', 'Please select a file first', 'error');
+        return;
+      }
+
+      const formData = new FormData(uploadForm);
+
+      // Show loading state
+      const submitButton = document.querySelector(
+        'button[type="submit"]'
+      );
+      submitButton.disabled = true;
+      submitButton.innerHTML =
+        '<i class="tim-icons icon-upload"></i> Uploading...';
+
+      fetch("/data/check-columns", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.missing_columns && data.missing_columns.length > 0) {
+            if (
+              confirm(
+                `New columns detected: ${data.missing_columns.join(
+                  ", "
+                )}. Do you want to create these columns?`
+              )
+            ) {
+              submitToDatabase(formData);
+            } else {
+              submitButton.disabled = false;
+              submitButton.innerHTML =
+                '<i class="tim-icons icon-upload"></i> Upload & Process';
+            }
+          } else {
+            submitToDatabase(formData);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          showToast('Error', 'Error checking columns', 'error');
+          submitButton.disabled = false;
+          submitButton.innerHTML =
+            '<i class="tim-icons icon-upload"></i> Upload & Process';
+        });
+    });
+
+    function submitToDatabase(formData) {
+      fetch("/data/upload-data", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const messageDiv = document.getElementById("responseMessage");
+          messageDiv.textContent = data.message;
+          messageDiv.className = `alert alert-${
+            data.success ? "success" : "danger"
+          }`;
+          messageDiv.style.display = "block";
+
+          // Show toast notification
+          if (data.success) {
+            showToast('Upload Successful', data.message, 'success');
+          } else {
+            showToast('Upload Failed', data.message, 'error');
+          }
+
+          const submitButton = document.querySelector(
+            'button[type="submit"]'
+          );
+          submitButton.disabled = false;
+          submitButton.innerHTML =
+            '<i class="tim-icons icon-upload"></i> Upload & Process';
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          showToast('Error', 'Error uploading data', 'error');
+          const submitButton = document.querySelector(
+            'button[type="submit"]'
+          );
+          submitButton.disabled = false;
+          submitButton.innerHTML =
+            '<i class="tim-icons icon-upload"></i> Upload & Process';
+        });
+    }
+    
+    // Function to show toast notification
+    window.showToast = function(title, message, icon = 'info') {
+      // Create toast element
+      const toast = document.createElement('div');
+      toast.className = 'cyber-toast';
+      
+      // Add type-specific class
+      if (icon === 'success') toast.classList.add('success');
+      if (icon === 'error') toast.classList.add('error');
+      if (icon === 'warning') toast.classList.add('warning');
+      
+      // Set icon based on type
+      let iconClass = 'fa-info-circle';
+      if (icon === 'filter') iconClass = 'fa-filter';
+      if (icon === 'success') iconClass = 'fa-check-circle';
+      if (icon === 'warning') iconClass = 'fa-exclamation-triangle';
+      if (icon === 'error') iconClass = 'fa-times-circle';
+      
+      // Set toast content
+      toast.innerHTML = `
+          <div class="cyber-toast-icon">
+              <i class="fas ${iconClass}"></i>
+          </div>
+          <div class="cyber-toast-content">
+              <div class="cyber-toast-title">${title}</div>
+              <div class="cyber-toast-message">${message}</div>
+          </div>
+          <div class="cyber-toast-close">×</div>
+          <div class="cyber-toast-progress"></div>
+      `;
+      
+      // Add to container
+      toastContainer.appendChild(toast);
+      
+      // Show toast with animation
+      setTimeout(() => {
+          toast.classList.add('show');
+      }, 10);
+      
+      // Set up close button
+      const closeBtn = toast.querySelector('.cyber-toast-close');
+      closeBtn.addEventListener('click', () => {
+          closeToast(toast);
+      });
+      
+      // Auto close after 5 seconds
+      const autoCloseTimeout = setTimeout(() => {
+          closeToast(toast);
+      }, 5000);
+      
+      // Store timeout in the element
+      toast._timeout = autoCloseTimeout;
+      
+      // Function to close toast
+      function closeToast(toastElement) {
+          // Clear timeout if it exists
+          if (toastElement._timeout) {
+              clearTimeout(toastElement._timeout);
+          }
+          
+          // Remove show class to trigger exit animation
+          toastElement.classList.remove('show');
+          
+          // Remove from DOM after animation completes
+          setTimeout(() => {
+              toastElement.remove();
+          }, 400);
+      }
+    }
+  });
+
+  function updateFileName(input) {
+    const fileName = input.files[0]?.name || "No file chosen";
+    document.getElementById("fileNameDisplay").textContent = fileName;
+  }
+  
+  function closeModal() {
+    document.getElementById("columnSelectionModal").classList.remove("show");
+  }
+  
+  function proceedWithUpload() {
+    // Implementation for proceeding with upload
+    closeModal();
+    showToast('Processing', 'Your file is being processed', 'info');
+  }
+</script>
+{% endblock javascripts %}

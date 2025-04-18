@@ -1,0 +1,906 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Tables {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+      body { 
+        font-family: "Montserrat";
+    }
+
+    /* Cyberpunk-inspired Table Styling with your color palette */
+    .cyber-title {
+        margin-top: 20px;
+        margin-left: 20px;
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: #e14eca; /* --primary */
+        /* text-shadow: 0 0 10px rgba(225, 78, 202, 0.6); */
+        letter-spacing: 1px;
+    }
+
+    /* Filter Box */
+    .cyber-filter-box {
+        margin-top: 20px;
+        margin-left: 20px;
+        margin-right: 50px;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        margin-bottom: 25px;
+        padding: 25px;
+        /* background: rgba(225, 78, 202, 0.05); */
+        border-radius: 12px;
+        border: 1px solid rgba(225, 78, 202, 0.2);
+        background: linear-gradient(145deg, #2d2f44, #1f2037);
+        /* box-shadow: 0 0 20px rgba(225, 78, 202, 0.1); */
+        position: relative;
+    }
+
+    /* Search */
+    .cyber-search-wrapper {
+        position: relative;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .cyber-search-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 16px;
+    }
+
+    .cyber-search {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(225, 78, 202, 0.3); /* --primary with opacity */
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .cyber-search:focus {
+        outline: none;
+        border-color: #e14eca; /* --primary */
+        box-shadow: 0 0 0 2px rgba(225, 78, 202, 0.25);
+    }
+
+    .cyber-search::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Top Filter Row - ONE ROW FOR ALL THREE FILTERS */
+    .cyber-top-filters {
+        display: flex;
+        width: 100%;
+        margin-bottom: 25px;
+        flex-wrap: nowrap; /* FORCE NO WRAPPING */
+    }
+
+    /* Make all filter groups in top row take maximum space */
+    .cyber-top-filters .cyber-filter-group {
+        flex: 1; /* Each filter takes equal space and grows to fill available space */
+        margin: 0 20px;
+        min-width: 0; /* Allow shrinking below content size if needed */
+    }
+
+    /* Remove margin from first and last items */
+    .cyber-top-filters .cyber-filter-group:first-child {
+        margin-left: 0;
+    }
+
+    .cyber-top-filters .cyber-filter-group:last-child {
+        margin-right: 0;
+    }
+
+    /* Second row with flex layout for better wrapping */
+    .cyber-filter-row-2 {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: space-between;
+    }
+
+    /* Set widths for different filter types */
+    .cyber-filter-group {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .cyber-filter-group.status-filter {
+        flex: 0 0 250px;
+        position: relative;
+    }
+
+    .cyber-button-wrapper {
+        position: relative;
+        flex: 0 0 auto;
+        align-self: flex-end;
+    }
+
+    .cyber-label {
+        color: rgba(225, 78, 202, 0.8); /* --primary with opacity */
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    /* Select styling with more space for dropdown icon */
+    .cyber-select {
+        padding: 10px 36px 10px 16px; /* Increased right padding for dropdown icon */
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(225, 78, 202, 0.3); /* --primary with opacity */
+        border-radius: 6px;
+        color: white;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        width: 100%; /* Ensure inputs take full width */
+        appearance: none; /* Remove default arrow */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(225, 78, 202, 0.8)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+    }
+
+    .cyber-input {
+        padding: 10px 16px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(225, 78, 202, 0.3); /* --primary with opacity */
+        border-radius: 6px;
+        color: white;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        width: 100%; /* Ensure inputs take full width */
+    }
+
+    .cyber-select:focus,
+    .cyber-input:focus {
+        outline: none;
+        border-color: #e14eca; /* --primary */
+        box-shadow: 0 0 0 2px rgba(225, 78, 202, 0.25);
+    }
+
+    .cyber-select option {
+        background-color: #121212;
+        color: white;
+        padding: 8px 15px;
+    }
+
+    .cyber-range {
+        display: flex;
+        gap: 10px; /* Reduced from 15px for more width */
+        align-items: center;
+        position: relative;
+        width: 100%;
+    }
+
+    .cyber-divider {
+        color: rgba(255, 255, 255, 0.5);
+        flex: 0 0 auto;
+    }
+
+    .cyber-input {
+        flex: 1;
+        min-width: 0; /* Prevents flex items from overflowing */
+        padding: 10px 10px; /* Reduced padding for more space */
+    }
+
+    .cyber-button {
+        padding: 10px 20px;
+        background: linear-gradient(45deg, #e14eca, #8965e0); /* --primary to --purple */
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+        height: 38px; /* Fixed height to align with other elements */
+        white-space: nowrap;
+        min-width: 140px;
+    }
+
+    .cyber-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(225, 78, 202, 0.5);
+    }
+
+    .cyber-button:active {
+        transform: translateY(0);
+    }
+
+    .cyber-button-icon {
+        font-size: 14px;
+    }
+
+    /* Table */
+    .cyber-table {
+        margin-right: 20px;
+        margin-left: 20px;
+        width: 97%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: linear-gradient(145deg, #121212, #1a1a1a);
+        border: 1px solid rgba(225, 78, 202, 0.2); /* --primary with opacity */
+        border-radius: 16px;
+        overflow: hidden;
+        /* box-shadow: 0 10px 40px rgba(225, 78, 202, 0.25); */
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cyber-table thead th {
+        padding: 12px 25px;
+        background: rgba(86, 3, 173, 0.1); /* --indigo with opacity */
+        color: #e14eca; /* --primary */
+        font-size: 14px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-align: left;
+        border-bottom: 2px solid #e14eca; /* --primary */
+        border-right: 1px solid rgba(225, 78, 202, 0.2);
+        position: relative;
+        height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .cyber-table thead th:last-child {
+        border-right: none;
+        text-align: center;
+    }
+
+    /* Add subtle gradient to header */
+    .cyber-table thead tr {
+        background: linear-gradient(to right, rgba(225, 78, 202, 0.1), rgba(137, 101, 224, 0.1)); /* --primary to --purple */
+        height: 45px;
+    }
+
+    .cyber-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        height: 55px;
+    }
+
+    .cyber-table tbody tr:hover {
+        background: rgba(225, 78, 202, 0.1); /* --primary with opacity */
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(225, 78, 202, 0.2);
+    }
+
+    .cyber-table tbody td {
+        padding: 8px 25px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.2s ease;
+        line-height: 1.2;
+        text-align: left;
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .cyber-table tbody td:last-child {
+        border-right: none;
+        text-align: center;
+    }
+
+    /* Alternating row colors */
+    .cyber-table tbody tr:nth-child(even) {
+        background: rgba(225, 78, 202, 0.03); /* --primary with opacity */
+    }
+
+    .cyber-table tbody tr:nth-child(odd) {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Status indicators */
+    .cyber-status {
+        position: relative;
+        padding-left: 15px;
+        font-weight: 600;
+    }
+
+    .cyber-status::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .cyber-status-active {
+        color: #00f2c3; /* --success */
+        text-shadow: 0 0 10px rgba(0, 242, 195, 0.4);
+    }
+
+    .cyber-status-active::before {
+        background-color: #00f2c3; /* --success */
+        box-shadow: 0 0 8px #00f2c3;
+    }
+
+    /* Added PAID status with green styling */
+    .cyber-status-paid {
+        color: #00f2c3; /* --success */
+        text-shadow: 0 0 10px rgba(0, 242, 195, 0.4);
+    }
+
+    .cyber-status-paid::before {
+        background-color: #00f2c3; /* --success */
+        box-shadow: 0 0 8px #00f2c3;
+    }
+
+    .cyber-status-pending {
+        color: #ff8d72; /* --warning */
+        text-shadow: 0 0 10px rgba(255, 141, 114, 0.4);
+    }
+
+    .cyber-status-pending::before {
+        background-color: #ff8d72; /* --warning */
+        box-shadow: 0 0 8px #ff8d72;
+    }
+
+    .cyber-status-default {
+        color: #fd5d93; /* --danger */
+        text-shadow: 0 0 10px rgba(253, 93, 147, 0.4);
+    }
+
+    .cyber-status-default::before {
+        background-color: #fd5d93; /* --danger */
+        box-shadow: 0 0 8px #fd5d93;
+    }
+
+    /* Action button */
+    .cyber-action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: rgba(225, 78, 202, 0.1); /* --primary with opacity */
+        border: 1px solid #e14eca; /* --primary */
+        border-radius: 6px;
+        color: #e14eca; /* --primary */
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        white-space: nowrap;
+        margin: 0 auto;
+        width: fit-content;
+    }
+
+    .cyber-action-button:hover {
+        background: #e14eca; /* --primary */
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(225, 78, 202, 0.3);
+    }
+
+    .cyber-action-button:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(225, 78, 202, 0.2);
+    }
+
+    /* Column-specific widths based on content */
+    .cyber-table th:nth-child(1) { /* Material */
+        width: 10%;
+    }
+
+    .cyber-table th:nth-child(2) { /* Financing Amount */
+        width: 22%;
+    }
+
+    .cyber-table th:nth-child(3) { /* Tenure */
+        width: 12%;
+    }
+
+    .cyber-table th:nth-child(4) { /* Default Risk */
+        width: 12%;
+    }
+
+    .cyber-table th:nth-child(5) { /* Status */
+        width: 15%;
+    }
+
+    .cyber-table th:nth-child(6) { /* Action */
+        width: 14%;
+        text-align: center;
+    }
+
+    /* No results message */
+    .no-results {
+        padding: 20px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.7);
+        font-style: italic;
+    }
+
+    /* Cyberpunk Toastr Notification */
+    .cyber-toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+    }
+
+    .cyber-toast {
+        background: linear-gradient(135deg, #1f2037, #2d2f44);
+        border-left: 4px solid #e14eca;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 15px rgba(225, 78, 202, 0.3), 0 0 20px rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 300px;
+        max-width: 400px;
+        transform: translateX(120%);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+        pointer-events: auto;
+    }
+
+    .cyber-toast.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .cyber-toast-icon {
+        flex: 0 0 auto;
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(45deg, #e14eca, #8965e0);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 10px rgba(225, 78, 202, 0.5);
+    }
+
+    .cyber-toast-icon i {
+        color: white;
+        font-size: 12px;
+    }
+
+    .cyber-toast-content {
+        flex: 1;
+    }
+
+    .cyber-toast-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+        color: #e14eca;
+    }
+
+    .cyber-toast-message {
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    .cyber-toast-close {
+        flex: 0 0 auto;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        font-size: 16px;
+        transition: color 0.2s;
+        pointer-events: auto;
+    }
+
+    .cyber-toast-close:hover {
+        color: white;
+    }
+
+    @keyframes cyber-toast-progress {
+        0% { width: 100%; }
+        100% { width: 0%; }
+    }
+
+    .cyber-toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(to right, #e14eca, #8965e0);
+        width: 100%;
+        border-radius: 0 0 0 6px;
+        animation: cyber-toast-progress 5s linear forwards;
+    }
+
+    /* Responsive adjustments - ONLY STACK ON VERY SMALL SCREENS */
+    @media (max-width: 768px) {
+        .cyber-top-filters {
+            flex-wrap: wrap;
+        }
+        
+        .cyber-top-filters .cyber-filter-group {
+            flex: 1 1 100%;
+            margin: 0 0 15px 0;
+        }
+        
+        .cyber-filter-row-2 {
+            flex-direction: column;
+        }
+        
+        .cyber-filter-group.status-filter {
+            flex: 0 0 100%;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .cyber-button-wrapper {
+            width: 100%;
+        }
+        
+        .cyber-button {
+            width: 100%;
+        }
+
+        .cyber-toast-container {
+            left: 20px;
+            right: 20px;
+        }
+
+        .cyber-toast {
+            min-width: 0;
+            max-width: 100%;
+        }
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="cyber-title">Prediction History</div>
+            
+            <!-- Filters and Search Bar -->
+            <div class="cyber-filter-box">
+                <div class="cyber-search-wrapper">
+                    <i class="fas fa-search cyber-search-icon"></i>
+                    <input type="text" class="cyber-search" placeholder="Search predictions by material, amount, status...">
+                </div>
+                
+                <!-- ONE ROW FOR ALL THREE FILTERS - Material, Financing Amount, and Tenure -->
+                <div class="cyber-top-filters">
+                    <div class="cyber-filter-group">
+                        <label class="cyber-label">Material</label>
+                        <select class="cyber-select" id="material-filter">
+                            <option value="">All Materials</option>
+                            <option value="Steel">Steel</option>
+                            <option value="Copper">Copper</option>
+                            <option value="Aluminum">Aluminum</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Financing Amount -->
+                    <div class="cyber-filter-group">
+                        <label class="cyber-label">Financing Amount</label>
+                        <div class="cyber-range">
+                            <input type="number" class="cyber-input" id="amount-min" placeholder="Min">
+                            <span class="cyber-divider">-</span>
+                            <input type="number" class="cyber-input" id="amount-max" placeholder="Max">
+                        </div>
+                    </div>
+                    
+                    <!-- Tenure -->
+                    <div class="cyber-filter-group">
+                        <label class="cyber-label">Tenure (Months)</label>
+                        <div class="cyber-range">
+                            <input type="number" class="cyber-input" id="tenure-min" placeholder="Min">
+                            <span class="cyber-divider">-</span>
+                            <input type="number" class="cyber-input" id="tenure-max" placeholder="Max">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Second row of filters -->
+                <div class="cyber-filter-row-2">
+                    <div class="cyber-filter-group status-filter">
+                        <label class="cyber-label">Status</label>
+                        <select class="cyber-select" id="status-filter">
+                            <option value="">All Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Default">Default</option>
+                            <option value="Paid">Paid</option>
+                        </select>
+                    </div>
+                    
+                    <div class="cyber-button-wrapper">
+                        <button class="cyber-button" id="apply-filters">
+                            <i class="fas fa-filter cyber-button-icon"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Table -->
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% else %}
+                <!-- Add this before the table to store first record data -->
+                {% if records and records|length > 0 %}
+                <script>
+                    // Store the first record's data in localStorage when tables page loads
+                    window.localStorage.setItem('defaultRecord', JSON.stringify({
+                        material: "{{ records[0]['material'] }}",
+                        financing_amount: "{{ records[0]['financing_amount'] }}",
+                        tenure: "{{ records[0]['tenure'] }}",
+                        prediction_percentage: "{{ records[0]['prediction_percentage'] }}",
+                        repayment_status: "{{ records[0]['repayment_status'] }}"
+                    }));
+                </script>
+                {% endif %}
+
+                <table class="cyber-table">
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Financing Amount</th>
+                            <th>Tenure</th>
+                            <th>Default Risk</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        {% if records %}
+                            {% for record in records %}
+                            <tr>
+                                <td>{{ record['material'] }}</td>
+                                <td>{{ 'PKR {:,.0f}'.format(record['financing_amount']) }}</td>
+                                <td>{{ record['tenure'] }} months</td>
+                                <td>{{ '{:.1f}%'.format(record['prediction_percentage']) }}</td>
+                                <td>
+                                    <span class="cyber-status cyber-status-{{ record['repayment_status']|lower }}">
+                                        {{ record['repayment_status'] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="/index?material={{ record['material']|urlencode }}&financing_amount={{ record['financing_amount'] }}&tenure={{ record['tenure'] }}&prediction_percentage={{ record['prediction_percentage'] }}&repayment_status={{ record['repayment_status']|urlencode }}" class="cyber-action-button">
+                                        <i class="fas fa-chart-line"></i> View Dashboard
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No records available</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="cyber-toast-container" id="toast-container"></div>
+
+<script>
+    // Enhanced filter functionality with toastr notifications
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.cyber-search');
+        const materialFilter = document.getElementById('material-filter');
+        const amountMinFilter = document.getElementById('amount-min');
+        const amountMaxFilter = document.getElementById('amount-max');
+        const tenureMinFilter = document.getElementById('tenure-min');
+        const tenureMaxFilter = document.getElementById('tenure-max');
+        const statusFilter = document.getElementById('status-filter');
+        const filterButton = document.getElementById('apply-filters');
+        const tableRows = document.querySelectorAll('.cyber-table tbody tr');
+        const tableBody = document.getElementById('table-body');
+        const toastContainer = document.getElementById('toast-container');
+        
+        // Simple search functionality
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            let visibleRows = 0;
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleRows++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show "No results" message if no rows are visible
+            checkNoResults(visibleRows);
+        });
+        
+        // Apply all filters
+        filterButton.addEventListener('click', function() {
+            const visibleRows = applyFilters();
+            
+            // Show toastr notification
+            showToast('Filters Applied', `Showing ${visibleRows} matching records`, 'filter');
+        });
+        
+        // Function to apply all filters
+        function applyFilters() {
+            const material = materialFilter.value.toLowerCase();
+            const amountMin = amountMinFilter.value ? parseFloat(amountMinFilter.value) : 0;
+            const amountMax = amountMaxFilter.value ? parseFloat(amountMaxFilter.value) : Infinity;
+            const tenureMin = tenureMinFilter.value ? parseInt(tenureMinFilter.value) : 0;
+            const tenureMax = tenureMaxFilter.value ? parseInt(tenureMaxFilter.value) : Infinity;
+            const status = statusFilter.value.toLowerCase();
+            
+            let visibleRows = 0;
+            
+            tableRows.forEach(row => {
+                // Get cell values
+                const rowMaterial = row.cells[0].textContent.toLowerCase();
+                const rowAmount = parseFloat(row.cells[1].textContent.replace(/[^0-9.-]+/g, ''));
+                const rowTenure = parseInt(row.cells[2].textContent);
+                const rowStatus = row.cells[4].textContent.trim().toLowerCase();
+                
+                // Check if row matches all filters
+                const materialMatch = material === '' || rowMaterial.includes(material);
+                const amountMatch = (rowAmount >= amountMin && rowAmount <= amountMax);
+                const tenureMatch = (rowTenure >= tenureMin && rowTenure <= tenureMax);
+                const statusMatch = status === '' || rowStatus.includes(status);
+                
+                // Show/hide row based on filter matches
+                if (materialMatch && amountMatch && tenureMatch && statusMatch) {
+                    row.style.display = '';
+                    visibleRows++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show "No results" message if no rows are visible
+            checkNoResults(visibleRows);
+            
+            return visibleRows;
+        }
+        
+        // Function to check if no results and show message
+        function checkNoResults(visibleRows) {
+            // Remove existing no results message if it exists
+            const existingNoResults = document.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
+            
+            // Add no results message if needed
+            if (visibleRows === 0) {
+                const noResultsRow = document.createElement('tr');
+                noResultsRow.className = 'no-results';
+                noResultsRow.innerHTML = '<td colspan="6">No matching records found</td>';
+                tableBody.appendChild(noResultsRow);
+            }
+        }
+        
+        // Add event listeners for Enter key on input fields
+        const inputFields = [amountMinFilter, amountMaxFilter, tenureMinFilter, tenureMaxFilter];
+        inputFields.forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const visibleRows = applyFilters();
+                    showToast('Filters Applied', `Showing ${visibleRows} matching records`, 'filter');
+                }
+            });
+        });
+        
+        // Add event listeners for change on select fields to auto-apply
+        const selectFields = [materialFilter, statusFilter];
+        selectFields.forEach(select => {
+            select.addEventListener('change', function() {
+                const visibleRows = applyFilters();
+                showToast('Filters Applied', `Showing ${visibleRows} matching records`, 'filter');
+            });
+        });
+        
+        // Function to show toast notification
+        function showToast(title, message, icon = 'info') {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'cyber-toast';
+            
+            // Set icon based on type
+            let iconClass = 'fa-info-circle';
+            if (icon === 'filter') iconClass = 'fa-filter';
+            if (icon === 'success') iconClass = 'fa-check-circle';
+            if (icon === 'warning') iconClass = 'fa-exclamation-triangle';
+            if (icon === 'error') iconClass = 'fa-times-circle';
+            
+            // Set toast content
+            toast.innerHTML = `
+                <div class="cyber-toast-icon">
+                    <i class="fas ${iconClass}"></i>
+                </div>
+                <div class="cyber-toast-content">
+                    <div class="cyber-toast-title">${title}</div>
+                    <div class="cyber-toast-message">${message}</div>
+                </div>
+                <div class="cyber-toast-close">×</div>
+                <div class="cyber-toast-progress"></div>
+            `;
+            
+            // Add to container
+            toastContainer.appendChild(toast);
+            
+            // Show toast with animation
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Set up close button
+            const closeBtn = toast.querySelector('.cyber-toast-close');
+            closeBtn.addEventListener('click', () => {
+                closeToast(toast);
+            });
+            
+            // Auto close after 5 seconds
+            const autoCloseTimeout = setTimeout(() => {
+                closeToast(toast);
+            }, 5000);
+            
+            // Store timeout in the element
+            toast._timeout = autoCloseTimeout;
+            
+            // Function to close toast
+            function closeToast(toastElement) {
+                // Clear timeout if it exists
+                if (toastElement._timeout) {
+                    clearTimeout(toastElement._timeout);
+                }
+                
+                // Remove show class to trigger exit animation
+                toastElement.classList.remove('show');
+                
+                // Remove from DOM after animation completes
+                setTimeout(() => {
+                    toastElement.remove();
+                }, 400);
+            }
+        }
+    });
+</script>
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}

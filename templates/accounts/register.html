@@ -1,0 +1,222 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Register {% endblock %}
+
+<!-- Specific Page CSS goes HERE -->
+{% block stylesheets %}
+<link href="{{ url_for('static', filename='assets/css/auth-pages.css') }}" rel="stylesheet" />
+{% endblock stylesheets %} 
+
+{% block content %}
+<!-- Container for both columns -->
+<div class="mainContainer">
+  <!-- First Column (Info) -->
+  <div class="text-column">
+    <div style="display: flex; align-items: center;">
+      <h1 style="margin-bottom: 25px">RiskSense</h1>
+
+      <img
+        class="tickLogo"
+        src="{{ url_for('static', filename='assets/img/logo.png') }}"
+        style="height: 70px; width: 70px; margin-bottom: 10px"
+      />
+    </div>
+
+    <h2 style="margin-bottom: 20px; text-align: center;">Join Our Financial Risk Platform</h2>
+
+    <div style="width: 100%; text-align: start; max-width: 600px; margin: 0 auto;">
+      Create your account to access our advanced risk analysis tools and gain insights into financial predictions and market trends.
+    </div>
+
+    <div class="listOfPros">
+      <div class="proRow">
+        <img
+          class="tickLogo"
+          src="{{ url_for('static', filename='assets/img/help.png') }}"
+          alt="Help Icon"
+        />
+        <b>Advanced Risk Analytics</b>
+      </div>
+
+      <div style="margin-left: 40px; margin-top: 0px; margin-bottom: 30px">
+        Gain access to our sophisticated risk assessment models that analyze data points to predict financial outcomes with high accuracy.
+      </div>
+
+      <div class="proRow">
+        <img
+          class="tickLogo"
+          src="{{ url_for('static', filename='assets/img/help.png') }}"
+          alt="Help Icon"
+        />
+        <b>Custom Data Integration</b>
+      </div>
+
+      <div style="margin-left: 40px; margin-top: 0px; margin-bottom: 30px">
+        Upload and integrate your financial data seamlessly with our platform for personalized insights and predictions.
+      </div>
+
+      <div class="proRow">
+        <img
+          class="tickLogo"
+          src="{{ url_for('static', filename='assets/img/help.png') }}"
+          alt="Help Icon"
+        />
+        <b>Real-time Market Analysis</b>
+      </div>
+
+      <div style="margin-left: 40px; margin-top: 0px; margin-bottom: 20px">
+        Stay updated with real-time market trends and adjust your strategies based on the latest financial indicators.
+      </div>
+    </div>
+  </div>
+
+  <!-- Second Column (Register Form) -->
+  <div style="width: 85%; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;">
+    <div class="customCard" style="width: 70%; height: auto; display: flex; flex-direction: column;">
+      <form id="registerForm" method="post" action="{{ url_for('authentication_blueprint.register') }}">
+        {{ form.hidden_tag() }}
+        
+        <!-- Form Header -->
+        <h2 id="formTitle" class="form-fields-fade" style="font-family: Montserrat; font-size: 32px; margin-bottom: 40px; text-align: center;">
+          Create Your Account
+        </h2>
+
+        <!-- Alert Message -->
+        {% if msg %}
+        <div class="alert {% if success %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+          {{ msg | safe }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endif %}
+
+        {% if success %}
+          <div class="text-center">
+            <p class="mb-4">You can now login to access your account</p>
+            <a href="{{ url_for('authentication_blueprint.login') }}" class="submitButtonRegister" style="text-decoration: none; margin: 20px auto; max-width: 200px;">
+              <span class="button-text" style="color: white">Login Now</span>
+            </a>
+          </div>
+        {% else %}
+          <!-- Form Fields Container -->
+          <div class="form-container">
+            <div style="margin-bottom: 25px;">
+              <label class="block" style="font-family: Montserrat; margin-bottom: 10px;">
+                Username
+              </label>
+              {{ form.username(class="form-control", style="font-family: Montserrat; padding: 12px; width: 100%;", placeholder="Choose a username") }}
+            </div>
+
+            <div style="margin-bottom: 25px;">
+              <label class="block" style="font-family: Montserrat; margin-bottom: 10px;">
+                Email
+              </label>
+              {{ form.email(class="form-control", type="email", style="font-family: Montserrat; padding: 12px; width: 100%;", placeholder="Your email address") }}
+            </div>
+
+            <div style="margin-bottom: 25px;">
+              <label class="block" style="font-family: Montserrat; margin-bottom: 10px;">
+                Password
+              </label>
+              {{ form.password(class="form-control", type="password", style="font-family: Montserrat; padding: 12px; width: 100%;", placeholder="Create a password") }}
+              <div class="form-text" style="opacity: 0.8;">Password must be at least 6 characters long</div>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="buttonRow" style="margin-top: 20px; flex-direction: column; align-items: center;">
+            <button type="submit" name="register" class="btn btn-primary btn-block btn-round" id="submitButton" style="margin-bottom: 15px; width: 100%; padding: 12px 20px;">
+              <span style="font-weight: 600; font-size: 16px;">Register</span>
+            </button>
+            
+            <p style="margin-top: 15px; text-align: center; font-family: 'Montserrat', sans-serif; opacity: 0.8;">
+              Already have an account? 
+              <a href="{{ url_for('authentication_blueprint.login') }}" style="text-decoration: underline; font-weight: 600;">
+                Login here
+              </a>
+            </p>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Focus on the username field when page loads
+    const usernameField = document.getElementById('username_create');
+    if (usernameField) {
+      usernameField.focus();
+    }
+
+    // Handle alert dismissal
+    const alertClose = document.querySelector('.alert .close');
+    if (alertClose) {
+      alertClose.addEventListener('click', function() {
+        const alert = this.closest('.alert');
+        alert.classList.remove('show');
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 300);
+      });
+    }
+    
+    // Form validation
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+      registerForm.addEventListener('submit', function(e) {
+        const username = document.querySelector('input[id="username_create"]').value;
+        const email = document.querySelector('input[id="email_create"]').value;
+        const password = document.querySelector('input[id="pwd_create"]').value;
+        let isValid = true;
+        let errorMsg = "";
+        
+        if (!username || username.length < 3) {
+          errorMsg = "Username must be at least 3 characters long";
+          isValid = false;
+        } else if (!email || !email.includes('@')) {
+          errorMsg = "Please enter a valid email address";
+          isValid = false;
+        } else if (!password || password.length < 6) {
+          errorMsg = "Password must be at least 6 characters long";
+          isValid = false;
+        }
+        
+        if (!isValid) {
+          e.preventDefault();
+          
+          // Create alert to show error
+          const existingAlert = document.querySelector('.alert');
+          if (existingAlert) {
+            existingAlert.remove();
+          }
+          
+          const alertDiv = document.createElement('div');
+          alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+          alertDiv.innerHTML = `
+            ${errorMsg}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          `;
+          
+          const formTitle = document.getElementById('formTitle');
+          formTitle.parentNode.insertBefore(alertDiv, formTitle.nextSibling);
+          
+          // Add event listener for dismissing the alert
+          alertDiv.querySelector('.close').addEventListener('click', function() {
+            alertDiv.classList.remove('show');
+            setTimeout(() => {
+              alertDiv.style.display = 'none';
+            }, 300);
+          });
+        }
+      });
+    }
+  });
+</script>
+{% endblock javascripts %}

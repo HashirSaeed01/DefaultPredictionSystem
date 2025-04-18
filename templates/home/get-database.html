@@ -1,0 +1,202 @@
+{% extends "layouts/base.html" %} {% block title %} Upload History {% endblock
+%} {% block stylesheets %}
+<style>
+  .table-wrapper {
+    margin: 20px;
+    overflow-x: auto;
+    max-height: 600px; /* adjust height as needed */
+    overflow-y: auto;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #27293d;
+    border-radius: 8px;
+  }
+
+  .data-table th {
+    background: #1e1e2f;
+    color: #ffffff;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .data-table td {
+    padding: 15px;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .data-table tr:hover {
+    background: #1e1e2f;
+  }
+
+  .empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #ffffff;
+    font-size: 16px;
+  }
+
+  .error-message {
+    color: #fd5d93;
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* Search container and input styles */
+  .search-container {
+    margin: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .search-input {
+    background: #27293d;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: white;
+    flex: 1;
+    max-width: 300px;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #e14eca;
+  }
+
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .clear-search {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+  }
+
+  .clear-search:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+</style>
+{% endblock stylesheets %} {% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Upload History</h4>
+          <p class="card-category">
+            View all previously uploaded loan data records
+          </p>
+        </div>
+        <div class="card-body">
+          {% if error %}
+          <div class="error-message">{{ error }}</div>
+          {% elif not records %}
+          <div class="empty-message">
+            <p>No records found in database.</p>
+            <small
+              >Upload some data from the Loan Input page to see records
+              here.</small
+            >
+          </div>
+          {% else %}
+          <!-- Search input -->
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="Search records..."
+            />
+            <button id="clearSearch" class="clear-search">Clear</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  {% for column in columns %}
+                  <th>{{ column | title }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in records %}
+                <tr>
+                  {% for column in columns %}
+                  <td>{{ record[column] }}</td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %} {% block javascripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchInput");
+    const clearButton = document.getElementById("clearSearch");
+    const tableRows = document.querySelectorAll(".data-table tbody tr");
+    let noResultsMessage = null;
+
+    function createNoResultsMessage() {
+      const message = document.createElement("div");
+      message.className = "empty-message";
+      message.innerHTML = "<p>No matching records found.</p>";
+      message.style.display = "none";
+      document.querySelector(".table-wrapper").appendChild(message);
+      return message;
+    }
+
+    function filterTable(searchTerm) {
+      let hasVisibleRows = false;
+      searchTerm = searchTerm.toLowerCase();
+
+      tableRows.forEach((row) => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          row.style.display = "";
+          hasVisibleRows = true;
+        } else {
+          row.style.display = "none";
+        }
+      });
+
+      // Show/hide no results message
+      if (!noResultsMessage) {
+        noResultsMessage = createNoResultsMessage();
+      }
+      noResultsMessage.style.display = hasVisibleRows ? "none" : "block";
+
+      // Show/hide clear button
+      clearButton.style.display = searchTerm ? "block" : "none";
+    }
+
+    searchInput.addEventListener("input", (e) => {
+      filterTable(e.target.value);
+    });
+
+    clearButton.addEventListener("click", () => {
+      searchInput.value = "";
+      filterTable("");
+      searchInput.focus();
+    });
+  });
+</script>
+{% endblock javascripts %}
