@@ -5,8 +5,6 @@ The backend is served via Flask, containerized with Docker, and connected to a P
 
 
 
-
-![Alt Text](/Images/Screenshot (13))
-
+![MLOps Pipeline Diagram](/Images/Screenshot%20(13).png)
 
 
